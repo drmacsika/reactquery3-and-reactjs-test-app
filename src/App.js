@@ -3,43 +3,42 @@ import "./App.css";
 import { useQuery } from "react-query";
 import React, { useEffect, useState } from "react";
 
-
-
-function Button() {
-  const {data, error} = useQuery("hello-world", () => {
-    return new Promise(resolve => {
-      setTimeout(() => resolve(Math.random()), 1000)
-    })
-  })
-  console.log({data, error})
-  return <button>I am a button {data}.</button>
+const fetcher = (repo) => {
+  return fetch(`https://api.github.com/repos/${repo}`).then( res => res.json())
 }
 
-function App() {
-  const [visible, setVisible] = useState(true)
+// function Button() {
+//   const {data, error} = useQuery("hello-world", () => {
+//     return new Promise(resolve => {
+//       setTimeout(() => resolve(Math.random()), 1000)
+//     })
+//   })
+//   console.log({data, error})
+//   return <button>I am a button {data}.</button>
+// }
 
-  function toggleButton() {
-    setVisible(visible => !visible)
+function App() {
+  const [repoName, setRepoName] = useState('')
+
+  // const {isLoading, data } = useQuery(["github-data", "facebook/react"], () => fetcher("facebook/react"))
+
+  const {isLoading, data } = useQuery(["github-data", repoName], () => fetcher(repoName))
+
+  if(isLoading){
+    return <div className="App">
+        <input type="text" value={repoName} onChange={(e) => setRepoName(e.target.value)} />
+        <h2>Loading...</h2>
+      </div>
+    
   }
+
 
   return (
     <div className="App">
-      <header className="App-header">
-      {visible && <Button />}
-      <button onClick={toggleButton}>Toggle</button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+        <input type="text" value={repoName} onChange={(e) => setRepoName(e.target.value)} />
+        <p>Name: {data.name}</p>
+        <p>Description: {data.description}</p>
+        <p>State: {data.stargazers_count}</p>
     </div>
   );
 }
