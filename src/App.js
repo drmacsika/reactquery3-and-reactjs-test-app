@@ -2,43 +2,38 @@ import logo from "./logo.svg";
 import "./App.css";
 import { useQuery } from "react-query";
 import React, { useEffect, useState } from "react";
+import Post from "./Post"
 
-const fetcher = (repo) => {
-  return fetch(`https://api.github.com/repos/${repo}`).then( res => res.json())
-}
+const fetcher = url => fetch(url).then( res => res.json())
 
-// function Button() {
-//   const {data, error} = useQuery("hello-world", () => {
-//     return new Promise(resolve => {
-//       setTimeout(() => resolve(Math.random()), 1000)
-//     })
-//   })
-//   console.log({data, error})
-//   return <button>I am a button {data}.</button>
-// }
 
 function App() {
-  const [repoName, setRepoName] = useState('')
+  const { isLoading, data:posts } = useQuery('posts', () => fetcher('https://jsonplaceholder.typicode.com/posts'))
 
-  // const {isLoading, data } = useQuery(["github-data", "facebook/react"], () => fetcher("facebook/react"))
-
-  const {isLoading, data } = useQuery(["github-data", repoName], () => fetcher(repoName))
+  const [postID, setPostID] = useState(null);
 
   if(isLoading){
-    return <div className="App">
-        <input type="text" value={repoName} onChange={(e) => setRepoName(e.target.value)} />
-        <h2>Loading...</h2>
-      </div>
-    
+    return <h2>Loading...</h2>    
+  }
+
+  // if(postID !== null){
+  //   return <h1>Active post: {postID}</h1>
+  // }
+
+    if(postID !== null){
+    return <Post postID={postID} goBack={() => setPostID(null)} />
   }
 
 
   return (
     <div className="App">
-        <input type="text" value={repoName} onChange={(e) => setRepoName(e.target.value)} />
-        <p>Name: {data.name}</p>
-        <p>Description: {data.description}</p>
-        <p>State: {data.stargazers_count}</p>
+    {
+      posts.map(post => {
+        return <p key={post.id}>
+        <a onClick={() => setPostID(post.id)} href="#">{post.id} - { post.title }</a>
+        </p>
+      })
+    }
     </div>
   );
 }
