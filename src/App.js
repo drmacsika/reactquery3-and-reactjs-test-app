@@ -9,9 +9,7 @@ const fetcher = url => fetch(url).then( res => res.json())
 
 
 function App() {
-  const { isLoading, data:posts } = useQuery('posts', () => fetcher('https://jsonplaceholder.typicode.com/posts'),{
-        select: result => result.slice(0, 1)
-    })
+  const { isLoading, data:posts } = useQuery('posts', () => fetcher('https://jsonplaceholder.typicode.com/posts'))
 
   const [postID, setPostID] = useState(null);
 
@@ -27,6 +25,17 @@ function App() {
     return <Post postID={postID} goBack={() => setPostID(null)} />
   }
 
+  function mutateTitle(id){
+    client.setQueryData(["post", id], oldData => {
+      if(oldData){
+        return {
+          ...oldData,
+          title: "Mutated already"
+        }
+      }
+    })
+  }
+
 
   return (
     <div className="App">
@@ -36,6 +45,7 @@ function App() {
         return <p key={post.id}>
         <a onClick={() => setPostID(post.id)} href="#">{post.id} - { post.title } </a>
         {cachedPost ? "(visited)" : ""}</p>
+        <button onClick={() => mutateTitle(post.id)}>Mutate The Title</button>
       })
     }
     </div>
